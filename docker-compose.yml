@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  servidor:
+    build: ./servidor
+    container_name: servidor
+    networks:
+      - rede-tempo
+    ports:
+      - "5000:5000"
+
+  cliente1:
+    build: ./cliente
+    container_name: cliente1
+    networks:
+      - rede-tempo
+    depends_on:
+      - servidor
+    command: ["python", "cliente.py", "500"]
+
+  cliente2:
+    build: ./cliente
+    container_name: cliente2
+    networks:
+      - rede-tempo
+    depends_on:
+      - servidor
+    command: ["python", "cliente.py", "1000"]
+
+  cliente3:
+    build: ./cliente
+    container_name: cliente3
+    networks:
+      - rede-tempo
+    depends_on:
+      - servidor
+    command: ["python", "cliente.py", "1500"]
+
+networks:
+  rede-tempo:
+    driver: bridge
