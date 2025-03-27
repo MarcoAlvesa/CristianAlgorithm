@@ -24,7 +24,9 @@ Implementação didática do algoritmo de Cristian para sincronização de reló
 ```bash
 docker-compose version  # >= 3.8
 python --version       # >= 3.9
-
+```
 ## 🚀 Como Rodar o Projeto
 # Construa e inicie os containers
+```bash
 docker-compose build && docker-compose up
+```
