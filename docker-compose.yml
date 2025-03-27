@@ -1,41 +1,59 @@
 version: '3.8'
 
 services:
-  servidor:
-    build: ./servidor
-    container_name: servidor
-    networks:
-      - rede-tempo
+  time-server:
+    build: 
+      context: ./server
+    container_name: time-server
     ports:
-      - "5000:5000"
-
-  cliente1:
-    build: ./cliente
-    container_name: cliente1
+      - "123:123/udp"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -zvu localhost 123 || exit 1"]
+      interval: 5s
+      timeout: 2s
+      retries: 3
     networks:
-      - rede-tempo
-    depends_on:
-      - servidor
-    command: ["python", "cliente.py", "500"]
+      - clock-net
 
-  cliente2:
-    build: ./cliente
-    container_name: cliente2
-    networks:
-      - rede-tempo
+  client-3h:
+    build:
+      context: ./client
+    container_name: client-3h
+    environment:
+      - INITIAL_DRIFT_HOURS=3
+      - TZ=UTC
     depends_on:
-      - servidor
-    command: ["python", "cliente.py", "1000"]
+      time-server:
+        condition: service_healthy
+    networks:
+      - clock-net
 
-  cliente3:
-    build: ./cliente
-    container_name: cliente3
-    networks:
-      - rede-tempo
+  client-6h:
+    build:
+      context: ./client
+    container_name: client-6h
+    environment:
+      - INITIAL_DRIFT_HOURS=6
+      - TZ=UTC
     depends_on:
-      - servidor
-    command: ["python", "cliente.py", "1500"]
+      time-server:
+        condition: service_healthy
+    networks:
+      - clock-net
+
+  client-9h:
+    build:
+      context: ./client
+    container_name: client-9h
+    environment:
+      - INITIAL_DRIFT_HOURS=9
+      - TZ=UTC
+    depends_on:
+      time-server:
+        condition: service_healthy
+    networks:
+      - clock-net
 
 networks:
-  rede-tempo:
+  clock-net:
     driver: bridge
